@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -25,6 +26,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        title: const Text(
+          'Registro',
+          style: TextStyle(color: Colors.black),
         ),
       ),
       body: SingleChildScrollView(
@@ -93,7 +98,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _buildButton('Registrarme', Colors.lightBlue.shade100, () {
                   if (_formKey.currentState!.validate()) {
                     // Lógica de registro (enviar datos al servidor, etc.)
-                    print("Registro exitoso");
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomeScreen()), // Redirige a HomeScreen
+                    );
                   }
                 }),
               ],
