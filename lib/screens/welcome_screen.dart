@@ -1,51 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:app_padel/screens/register_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-@override
+    @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Stack(
-        fit: StackFit.expand, // Hace que la imagen ocupe toda la pantalla
         children: [
-          Image.asset(
-            'assets/images/fondo app.png', // Ruta de la imagen en tu proyecto
-            fit: BoxFit.cover, // Hace que la imagen cubra toda la pantalla
-          ),
-          Center(
+          Center( // Centra el contenido principal
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Text(
                   "PlayDay",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
                 const Text(
                   "Únete a nosotros y disfruta de jugar\nal pádel siempre que quieras",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 30),
-                // ignore: deprecated_member_use
-                _buildButton("Registrarme", Colors.white.withOpacity(0.8), () {
-                  print("Registrarme presionado");
+                _buildButton("Registrarme", Colors.lightBlue.shade100, () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                  );
                 }),
                 const SizedBox(height: 10),
-                // ignore: deprecated_member_use
-                _buildButton("Iniciar sesión", Colors.white.withOpacity(0.8), () {
+                _buildButton("Iniciar sesión", Colors.lightBlue.shade100, () {
                   print("Iniciar sesión presionado");
                 }),
               ],
             ),
           ),
           Positioned(
-            left: 20,
-            bottom: 20,
+            left: 20, // Distancia desde el borde izquierdo
+            bottom: 20, // Distancia desde el borde inferior
             child: const Text(
               "Al registrarte estás aceptando nuestra política de privacidad y nuestras condiciones",
-              style: TextStyle(fontSize: 10, color: Colors.black),
+              style: TextStyle(fontSize: 10),
               textAlign: TextAlign.left,
             ),
           ),
