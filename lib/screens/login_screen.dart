@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  String _countrycode = '+34';
-  bool _agreedToTerms = false;
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,7 +25,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         ),
         title: const Text(
-          'Registro',
+          'Iniciar Sesión',
           style: TextStyle(color: Colors.black),
         ),
       ),
@@ -41,66 +38,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Regístrate ahora',
+                  'Bienvenido de nuevo',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Nombre', 'Por favor, ingresa tu nombre'),
-                const SizedBox(height: 10),
-                _buildTextField('Apellidos', 'Por favor, ingresa tus apellidos'),
-                const SizedBox(height: 10),
                 _buildTextField('Email', 'Por favor, ingresa tu email'),
                 const SizedBox(height: 10),
                 _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', isPassword: true),
                 const SizedBox(height: 20),
-                Row(
-                  children: [
-                    DropdownButton<String>(
-                      value: _countrycode,
-                      items: ['+34', '+1', '+44'].map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _countrycode = newValue!;
-                        });
-                      },
-                    ),
-                    Expanded(
-                      child: TextFormField(
-                        decoration: const InputDecoration(labelText: 'Número de teléfono'),
-                        keyboardType: TextInputType.phone,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Checkbox(
-                      value: _agreedToTerms,
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _agreedToTerms = value!;
-                        });
-                      },
-                    ),
-                    const Text(
-                      'Acepto las condiciones de uso y privacidad',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                _buildButton('Registrarme', Colors.lightBlue.shade100, () {
+                _buildButton('Iniciar Sesión', Colors.lightBlue.shade100, () {
                   if (_formKey.currentState!.validate()) {
-                    // Lógica de registro (enviar datos al servidor, etc.)
+                    // Lógica de autenticación
                     Navigator.pushReplacement(
                       context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()), // Redirige a HomeScreen
+                      MaterialPageRoute(builder: (context) => const HomeScreen()),
                     );
                   }
                 }),

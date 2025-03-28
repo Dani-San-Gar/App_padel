@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:app_padel/screens/register_screen.dart';
+import 'package:app_padel/screens/login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -33,7 +34,10 @@ class WelcomeScreen extends StatelessWidget {
                 }),
                 const SizedBox(height: 10),
                 _buildButton("Iniciar sesión", Colors.lightBlue.shade100, () {
-                  print("Iniciar sesión presionado");
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
                 }),
               ],
             ),
@@ -42,7 +46,7 @@ class WelcomeScreen extends StatelessWidget {
             left: 20, // Distancia desde el borde izquierdo
             bottom: 20, // Distancia desde el borde inferior
             child: const Text(
-              "Al registrarte estás aceptando nuestra política de privacidad y nuestras condiciones",
+              "Al registrarte aceptas nuestra política de privacidad y nuestras condiciones",
               style: TextStyle(fontSize: 10),
               textAlign: TextAlign.left,
             ),
