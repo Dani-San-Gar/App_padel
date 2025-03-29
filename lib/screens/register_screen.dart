@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'home_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -10,9 +12,60 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _surnameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   String _countrycode = '+34';
   bool _agreedToTerms = false;
+  bool _isLoading = false;
+
+  Future<void> _registerUser() async {
+    if (!_formKey.currentState!.validate() || !_agreedToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Debes aceptar los términos y llenar todos los campos')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final url = Uri.parse("http://tu-servidor.com/register/");
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "nombre": _nameController.text,
+        "apellidos": _surnameController.text,
+        "email": _emailController.text,
+        "contraseña": _passwordController.text,
+        "telefono": "$_countrycode${_phoneController.text}"
+      }),
+    );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registro exitoso')),
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else {
+      final errorMessage = jsonDecode(response.body)['detail'];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $errorMessage')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,13 +98,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Nombre', 'Por favor, ingresa tu nombre'),
+                _buildTextField('Nombre', 'Por favor, ingresa tu nombre', _nameController),
                 const SizedBox(height: 10),
-                _buildTextField('Apellidos', 'Por favor, ingresa tus apellidos'),
+                _buildTextField('Apellidos', 'Por favor, ingresa tus apellidos', _surnameController),
                 const SizedBox(height: 10),
-                _buildTextField('Email', 'Por favor, ingresa tu email'),
+                _buildTextField('Email', 'Por favor, ingresa tu email', _emailController),
                 const SizedBox(height: 10),
-                _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', isPassword: true),
+                _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', _passwordController, isPassword: true),
                 const SizedBox(height: 20),
                 Row(
                   children: [
@@ -71,6 +124,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     Expanded(
                       child: TextFormField(
+                        controller: _phoneController,
                         decoration: const InputDecoration(labelText: 'Número de teléfono'),
                         keyboardType: TextInputType.phone,
                       ),
@@ -95,15 +149,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ],
                 ),
                 const SizedBox(height: 20),
-                _buildButton('Registrarme', Colors.lightBlue.shade100, () {
-                  if (_formKey.currentState!.validate()) {
-                    // Lógica de registro (enviar datos al servidor, etc.)
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()), // Redirige a HomeScreen
-                    );
-                  }
-                }),
+                _buildButton('Registrarme', Colors.lightBlue.shade100, _registerUser),
+                if (_isLoading) const Center(child: CircularProgressIndicator()),
               ],
             ),
           ),
@@ -112,8 +159,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String errorMessage, {bool isPassword = false}) {
+  Widget _buildTextField(String label, String errorMessage, TextEditingController controller, {bool isPassword = false}) {
     return TextFormField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         labelText: label,
