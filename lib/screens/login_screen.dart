@@ -37,9 +37,11 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Bienvenido de nuevo',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                const Center(
+                  child: Text(
+                    'Bienvenido de nuevo',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 _buildTextField('Email', 'Por favor, ingresa tu email'),
@@ -82,21 +84,34 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildButton(String text, Color color, VoidCallback onPressed) {
-    return SizedBox(
-      width: double.infinity,
-      height: 45,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: color,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Colors.black),
+    return Center(
+      child: Container(
+        width: 250,
+        height: 45,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blue, Colors.lightBlueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 5,
+              offset: Offset(2, 2),
+            ),
+          ],
         ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(color: Colors.black),
+        child: TextButton(
+          onPressed: onPressed,
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+          ),
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white, fontSize: 16),
+          ),
         ),
       ),
     );
