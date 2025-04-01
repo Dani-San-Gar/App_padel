@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,7 +11,48 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
+  void _showLoadingAnimation(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              'assets/animations/loading.json', // Ruta de la animación Lottie
+              width: 150,
+              height: 150,
+              repeat: true,
+            ),
+            SizedBox(height: 10),
+            Text(
+              "Cargando...",
+              style: TextStyle(color: Colors.black, fontSize: 18),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _login(BuildContext context) async {
+    if (_formKey.currentState!.validate()) {
+      _showLoadingAnimation(context);
+      
+      await Future.delayed(Duration(seconds: 3)); // Simula la autenticación
+      
+      Navigator.pop(context); // Cierra la animación
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,15 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 10),
                 _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', isPassword: true),
                 const SizedBox(height: 20),
-                _buildButton('Iniciar Sesión', Colors.lightBlue.shade100, () {
-                  if (_formKey.currentState!.validate()) {
-                    // Lógica de autenticación
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    );
-                  }
-                }),
+                _buildButton('Iniciar Sesión', Colors.lightBlue.shade100, () => _login(context)),
               ],
             ),
           ),
