@@ -35,34 +35,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     final url = Uri.parse("http://tu-servidor.com/register/");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "nombre": _nameController.text,
-        "apellidos": _surnameController.text,
-        "email": _emailController.text,
-        "contraseña": _passwordController.text,
-        "telefono": "$_countrycode${_phoneController.text}"
-      }),
-    );
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registro exitoso')),
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nombre": _nameController.text,
+          "apellidos": _surnameController.text,
+          "email": _emailController.text,
+          "contraseña": _passwordController.text,
+          "telefono": "$_countrycode${_phoneController.text}"
+        }),
       );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
-      );
-    } else {
-      final errorMessage = jsonDecode(response.body)['detail'];
+
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Registro exitoso')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      } else {
+        final errorMessage = jsonDecode(response.body)['detail'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $errorMessage')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $errorMessage')),
+        const SnackBar(content: Text('Error al conectar con el servidor, por favor intente más tarde')),
       );
     }
   }
@@ -125,11 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       },
                     ),
                     Expanded(
-                      child: TextFormField(
-                        controller: _phoneController,
-                        decoration: const InputDecoration(labelText: 'Número de teléfono'),
-                        keyboardType: TextInputType.phone,
-                      ),
+                      child: _buildTextField('Número de teléfono', 'Por favor, ingresa tu número de teléfono', _phoneController),
                     ),
                   ],
                 ),
@@ -144,9 +153,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         });
                       },
                     ),
-                    const Text(
-                      'Acepto las condiciones de uso y privacidad',
-                      style: TextStyle(fontSize: 12),
+                    const Expanded(
+                      child: Text(
+                        'Acepto las condiciones de uso y privacidad',
+                        style: TextStyle(fontSize: 12),
+                      ),
                     ),
                   ],
                 ),
@@ -170,10 +181,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
         ),
+        focusedBorder: OutlineInputBorder( // Cambia el color del borde al hacer clic
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Colors.blue, width: 2),
+        ),
+        prefixIcon: Icon(
+          isPassword ? Icons.lock : Icons.person,
+          color: Colors.blue,
+        ),
       ),
       validator: (value) {
         if (value!.isEmpty) {
           return errorMessage;
+        } else if (label == 'Email' && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+          return 'Ingresa un email válido';
+        } else if (label == 'Contraseña' && value.length < 8) {
+          return 'La contraseña debe tener al menos 8 caracteres';
         }
         return null;
       },
@@ -186,13 +209,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
         width: 250,
         height: 45,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             colors: [Colors.blue, Colors.lightBlueAccent],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 5,

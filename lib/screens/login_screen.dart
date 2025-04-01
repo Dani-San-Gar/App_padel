@@ -11,41 +11,36 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  void _showLoadingAnimation(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.transparent,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Lottie.asset(
-              'assets/animations/loading.json', // Ruta de la animación Lottie
-              width: 150,
-              height: 150,
-              repeat: true,
-            ),
-            SizedBox(height: 10),
-            Text(
-              "Cargando...",
-              style: TextStyle(color: Colors.black, fontSize: 18),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  bool _obscurePassword = true;
 
   void _login(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
-      _showLoadingAnimation(context);
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Dialog(
+          backgroundColor: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset(
+                'assets/animations/loading.json',
+                width: 150,
+                height: 150,
+                repeat: true,
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                "Cargando...",
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+            ],
+          ),
+        ),
+      );
       
-      await Future.delayed(Duration(seconds: 3)); // Simula la autenticación
-      
-      Navigator.pop(context); // Cierra la animación
-      
+      await Future.delayed(const Duration(seconds: 3)); // Simula autenticación
+      Navigator.pop(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -77,20 +72,30 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Form(
             key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Center(
-                  child: Text(
-                    'Bienvenido de nuevo',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                const Text(
+                  'Bienvenido de nuevo',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                _buildTextField('Email', 'Por favor, ingresa un email válido', Icons.email, false),
+                const SizedBox(height: 10),
+                _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', Icons.lock, true),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.center,
+                  child: TextButton(
+                    onPressed: () {},
+                    child: const Text(
+                      '¿Olvidaste tu contraseña?',
+                      style: TextStyle(color: Colors.blue, fontSize: 14),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                _buildTextField('Email', 'Por favor, ingresa tu email'),
-                const SizedBox(height: 10),
-                _buildTextField('Contraseña', 'Por favor, ingresa tu contraseña', isPassword: true),
-                const SizedBox(height: 20),
-                _buildButton('Iniciar Sesión', Colors.lightBlue.shade100, () => _login(context)),
+                _buildGradientButton('Iniciar Sesión', () => _login(context)),
               ],
             ),
           ),
@@ -99,53 +104,60 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildTextField(String label, String errorMessage, {bool isPassword = false}) {
+  Widget _buildTextField(String label, String errorMessage, IconData icon, bool isPassword) {
     return TextFormField(
-      obscureText: isPassword,
+      obscureText: isPassword ? _obscurePassword : false,
       decoration: InputDecoration(
         labelText: label,
+        prefixIcon: Icon(icon, color: Colors.blue),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(20),
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20),
+          borderSide: const BorderSide(color: Colors.blue, width: 2),
+        ),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.blue,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
       ),
       validator: (value) {
         if (value!.isEmpty) {
           return errorMessage;
+        } else if (label == 'Email' && !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+          return 'Ingresa un email válido';
         }
         return null;
       },
     );
   }
 
-  Widget _buildButton(String text, Color color, VoidCallback onPressed) {
-    return Center(
-      child: Container(
-        width: 250,
-        height: 45,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blue, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 5,
-              offset: Offset(2, 2),
-            ),
-          ],
+  Widget _buildGradientButton(String text, VoidCallback onPressed) {
+    return SizedBox(
+      width: 250,
+      height: 45,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.zero,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.blue,
+          shadowColor: Colors.black26,
+          elevation: 5,
         ),
-        child: TextButton(
-          onPressed: onPressed,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-          ),
-          child: Text(
-            text,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
-          ),
+        child: Text(
+          text,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
         ),
       ),
     );
